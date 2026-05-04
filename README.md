@@ -19,7 +19,7 @@ Ce dépôt sert de support à la partie pratique du cours-03.
 | Outil | Rôle |
 |---|---|
 | Node 24 + NestJS 11 | Framework backend |
-| Prisma 7 + SQLite | Base de données (fichier local, aucun service à lancer) |
+| better-sqlite3 | Base de données SQLite (requêtes SQL directes, aucun service à lancer) |
 | Swagger | Documentation de l'API |
 | Jest | Tests unitaires avec couverture |
 | Prettier | Formatage du code |
@@ -65,9 +65,7 @@ npm ci
 cp .env.example .env
 
 # 4. Initialiser la base de données
-npx prisma generate
-npx prisma migrate dev --name init
-npx prisma db seed
+npx ts-node db/seed.ts
 ```
 
 ---
@@ -168,10 +166,10 @@ Les exercices se trouvent sur des branches dédiées. Pour chaque exercice :
 
 ```bash
 # Réinitialiser la base de données
-npx prisma migrate reset --force && npx prisma db seed
+npx ts-node db/seed.ts
 
-# Voir la base de données dans Prisma Studio
-npx prisma studio
+# Voir la base de données (outil en ligne de commande SQLite)
+sqlite3 dev.db
 
 # Vérifier le formatage
 npm run format:check

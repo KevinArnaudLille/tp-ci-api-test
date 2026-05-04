@@ -1,20 +1,17 @@
 #!/bin/bash
-set -e
+set -ex
 
 echo "==> Installation des dépendances npm..."
 npm ci
 
-echo "==> Génération du client Prisma..."
-npx prisma generate
-
-echo "==> Création de la base de données SQLite et application des migrations..."
-npx prisma migrate dev --name init
-
-echo "==> Initialisation des données de démonstration..."
-npx prisma db seed
+echo "==> Création de la base de données SQLite et initialisation des données de démonstration..."
+DATABASE_URL="./dev.db" npx ts-node db/seed.ts
 
 echo "==> Installation de act (exécution locale des GitHub Actions)..."
-curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+sudo ln -sf /workspaces/tp-ci-api/bin/act /usr/local/bin/act
+
+echo "==> Pré-téléchargement de l'image Docker pour act..."
+docker pull catthehacker/ubuntu:act-24.04
 
 echo "==> Installation de Trivy (scan de sécurité)..."
 curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin

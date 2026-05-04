@@ -8,13 +8,16 @@
         "nestjs.vscode-nestjs-schematics",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "firsttris.vscode-jest-runner",
-        "Prisma.prisma"
+        "firsttris.vscode-jest-runner"
       ]
     }
   },
 
   "forwardPorts": [3000],
+
+  "mounts": [
+    "source=tp-ci-api-npm-cache,target=/home/node/.npm,type=volume"
+  ],
 
   "postCreateCommand": "bash .devcontainer/setup.sh",
 

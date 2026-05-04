@@ -1,32 +1,40 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import Database from 'better-sqlite3';
 import { TasksService } from './tasks.service';
-import { PrismaService } from '../prisma.service';
+import { DatabaseService } from '../database.service';
 
-// Mock de PrismaService — aucune base de données réelle n'est nécessaire
-const mockPrismaService = {
-  task: {
-    create: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  },
-};
+const CREATE_TABLE = `
+  CREATE TABLE IF NOT EXISTS task (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    title     TEXT    NOT NULL,
+    content   TEXT,
+    done      INTEGER NOT NULL DEFAULT 0,
+    createdAt TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+  )
+`;
+
+function createInMemoryDatabaseService(): DatabaseService {
+  const memDb = new Database(':memory:');
+  memDb.pragma('journal_mode = WAL');
+  memDb.exec(CREATE_TABLE);
+  return { db: memDb } as unknown as DatabaseService;
+}
 
 describe('TasksService', () => {
   let service: TasksService;
 
   beforeEach(async () => {
+    const dbService = createInMemoryDatabaseService();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TasksService,
-        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: DatabaseService, useValue: dbService },
       ],
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -34,129 +42,72 @@ describe('TasksService', () => {
   });
 
   describe('create', () => {
-    it('crée une tâche et la retourne', async () => {
+    it('crée une tâche et la retourne', () => {
       const dto = { title: 'Tâche de test' };
-      const expected = {
-        id: 1,
-        title: 'Tâche de test',
-        content: null,
-        done: false,
-        createdAt: new Date(),
-      };
-      mockPrismaService.task.create.mockResolvedValue(expected);
 
-      const result = await service.create(dto);
+      const result = service.create(dto);
 
-      expect(mockPrismaService.task.create).toHaveBeenCalledWith({ data: dto });
-      expect(result).toEqual(expected);
+      expect(result.id).toBeDefined();
+      expect(result.title).toBe('Tâche de test');
+      expect(result.content).toBeNull();
+      expect(result.done).toBe(false);
+      expect(result.createdAt).toBeInstanceOf(Date);
     });
   });
 
   describe('findAll', () => {
-    it('retourne la liste de toutes les tâches', async () => {
-      const tasks = [
-        {
-          id: 1,
-          title: 'Tâche 1',
-          content: null,
-          done: false,
-          createdAt: new Date(),
-        },
-        {
-          id: 2,
-          title: 'Tâche 2',
-          content: null,
-          done: true,
-          createdAt: new Date(),
-        },
-      ];
-      mockPrismaService.task.findMany.mockResolvedValue(tasks);
+    it('retourne la liste de toutes les tâches', () => {
+      service.create({ title: 'Tâche 1' });
+      service.create({ title: 'Tâche 2' });
 
-      const result = await service.findAll();
+      const result = service.findAll();
 
       expect(result).toHaveLength(2);
-      expect(mockPrismaService.task.findMany).toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
-    it("retourne la tâche correspondant à l'ID", async () => {
-      const task = {
-        id: 1,
-        title: 'Tâche 1',
-        content: null,
-        done: false,
-        createdAt: new Date(),
-      };
-      mockPrismaService.task.findUnique.mockResolvedValue(task);
+    it("retourne la tâche correspondant à l'ID", () => {
+      const created = service.create({ title: 'Tâche 1' });
 
-      const result = await service.findOne(1);
+      const result = service.findOne(created.id);
 
-      expect(result).toEqual(task);
+      expect(result).toEqual(created);
     });
 
-    it("lève une NotFoundException si la tâche n'existe pas", async () => {
-      mockPrismaService.task.findUnique.mockResolvedValue(null);
-
-      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
+    it("lève une NotFoundException si la tâche n'existe pas", () => {
+      expect(() => service.findOne(999)).toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
-    it('met à jour une tâche existante et retourne la tâche mise à jour', async () => {
-      const task = {
-        id: 1,
-        title: 'Tâche 1',
-        content: null,
-        done: false,
-        createdAt: new Date(),
-      };
-      const updated = { ...task, title: 'Tâche modifiée' };
-      mockPrismaService.task.findUnique.mockResolvedValue(task);
-      mockPrismaService.task.update.mockResolvedValue(updated);
+    it('met à jour une tâche existante et retourne la tâche mise à jour', () => {
+      const created = service.create({ title: 'Tâche 1' });
 
-      const result = await service.update(1, { title: 'Tâche modifiée' });
+      const result = service.update(created.id, { title: 'Tâche modifiée' });
 
-      expect(mockPrismaService.task.update).toHaveBeenCalledWith({
-        where: { id: 1 },
-        data: { title: 'Tâche modifiée' },
-      });
       expect(result.title).toBe('Tâche modifiée');
     });
 
-    it("lève une NotFoundException si la tâche à modifier n'existe pas", async () => {
-      mockPrismaService.task.findUnique.mockResolvedValue(null);
-
-      await expect(service.update(999, { title: 'Test' })).rejects.toThrow(
+    it("lève une NotFoundException si la tâche à modifier n'existe pas", () => {
+      expect(() => service.update(999, { title: 'Test' })).toThrow(
         NotFoundException,
       );
     });
   });
 
   describe('remove', () => {
-    it('supprime une tâche existante et la retourne', async () => {
-      const task = {
-        id: 1,
-        title: 'Tâche 1',
-        content: null,
-        done: false,
-        createdAt: new Date(),
-      };
-      mockPrismaService.task.findUnique.mockResolvedValue(task);
-      mockPrismaService.task.delete.mockResolvedValue(task);
+    it('supprime une tâche existante et la retourne', () => {
+      const created = service.create({ title: 'Tâche 1' });
 
-      const result = await service.remove(1);
+      const result = service.remove(created.id);
 
-      expect(mockPrismaService.task.delete).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(result).toEqual(task);
+      expect(result).toEqual(created);
+      expect(() => service.findOne(created.id)).toThrow(NotFoundException);
     });
 
-    it("lève une NotFoundException si la tâche à supprimer n'existe pas", async () => {
-      mockPrismaService.task.findUnique.mockResolvedValue(null);
-
-      await expect(service.remove(999)).rejects.toThrow(NotFoundException);
+    it("lève une NotFoundException si la tâche à supprimer n'existe pas", () => {
+      expect(() => service.remove(999)).toThrow(NotFoundException);
     });
   });
 });

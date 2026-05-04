@@ -1,6 +1,4 @@
-import { Task as PrismaTask } from '@prisma/client';
-
-export class Task implements PrismaTask {
+export class Task {
   id: number;
   title: string;
   content: string | null;

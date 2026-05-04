@@ -10,7 +10,8 @@ dist/
 # Base de données SQLite (générée localement)
 *.db
 *.db-journal
-prisma/dev.db
+*.db-shm
+*.db-wal
 
 # Couverture de code
 coverage/
@@ -29,9 +30,6 @@ Thumbs.db
 # VS Code
 .vscode/
 !.vscode/extensions.json
-
-# Prisma
-prisma/migrations/
 
 # TypeScript incremental
 *.tsbuildinfo
