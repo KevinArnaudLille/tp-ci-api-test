@@ -33,3 +33,6 @@ Thumbs.db
 
 # TypeScript incremental
 *.tsbuildinfo
+
+# Prisma (migrations générées localement)
+prisma/migrations/
