@@ -36,7 +36,13 @@ describe('TasksService', () => {
   describe('create', () => {
     it('crée une tâche et la retourne', async () => {
       const dto = { title: 'Tâche de test' };
-      const expected = { id: 1, title: 'Tâche de test', content: null, done: false, createdAt: new Date() };
+      const expected = {
+        id: 1,
+        title: 'Tâche de test',
+        content: null,
+        done: false,
+        createdAt: new Date(),
+      };
       mockPrismaService.task.create.mockResolvedValue(expected);
 
       const result = await service.create(dto);
@@ -49,8 +55,20 @@ describe('TasksService', () => {
   describe('findAll', () => {
     it('retourne la liste de toutes les tâches', async () => {
       const tasks = [
-        { id: 1, title: 'Tâche 1', content: null, done: false, createdAt: new Date() },
-        { id: 2, title: 'Tâche 2', content: null, done: true, createdAt: new Date() },
+        {
+          id: 1,
+          title: 'Tâche 1',
+          content: null,
+          done: false,
+          createdAt: new Date(),
+        },
+        {
+          id: 2,
+          title: 'Tâche 2',
+          content: null,
+          done: true,
+          createdAt: new Date(),
+        },
       ];
       mockPrismaService.task.findMany.mockResolvedValue(tasks);
 
@@ -62,8 +80,14 @@ describe('TasksService', () => {
   });
 
   describe('findOne', () => {
-    it('retourne la tâche correspondant à l\'ID', async () => {
-      const task = { id: 1, title: 'Tâche 1', content: null, done: false, createdAt: new Date() };
+    it("retourne la tâche correspondant à l'ID", async () => {
+      const task = {
+        id: 1,
+        title: 'Tâche 1',
+        content: null,
+        done: false,
+        createdAt: new Date(),
+      };
       mockPrismaService.task.findUnique.mockResolvedValue(task);
 
       const result = await service.findOne(1);
@@ -71,7 +95,7 @@ describe('TasksService', () => {
       expect(result).toEqual(task);
     });
 
-    it('lève une NotFoundException si la tâche n\'existe pas', async () => {
+    it("lève une NotFoundException si la tâche n'existe pas", async () => {
       mockPrismaService.task.findUnique.mockResolvedValue(null);
 
       await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
@@ -80,7 +104,13 @@ describe('TasksService', () => {
 
   describe('update', () => {
     it('met à jour une tâche existante et retourne la tâche mise à jour', async () => {
-      const task = { id: 1, title: 'Tâche 1', content: null, done: false, createdAt: new Date() };
+      const task = {
+        id: 1,
+        title: 'Tâche 1',
+        content: null,
+        done: false,
+        createdAt: new Date(),
+      };
       const updated = { ...task, title: 'Tâche modifiée' };
       mockPrismaService.task.findUnique.mockResolvedValue(task);
       mockPrismaService.task.update.mockResolvedValue(updated);
@@ -94,26 +124,36 @@ describe('TasksService', () => {
       expect(result.title).toBe('Tâche modifiée');
     });
 
-    it('lève une NotFoundException si la tâche à modifier n\'existe pas', async () => {
+    it("lève une NotFoundException si la tâche à modifier n'existe pas", async () => {
       mockPrismaService.task.findUnique.mockResolvedValue(null);
 
-      await expect(service.update(999, { title: 'Test' })).rejects.toThrow(NotFoundException);
+      await expect(service.update(999, { title: 'Test' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('remove', () => {
     it('supprime une tâche existante et la retourne', async () => {
-      const task = { id: 1, title: 'Tâche 1', content: null, done: false, createdAt: new Date() };
+      const task = {
+        id: 1,
+        title: 'Tâche 1',
+        content: null,
+        done: false,
+        createdAt: new Date(),
+      };
       mockPrismaService.task.findUnique.mockResolvedValue(task);
       mockPrismaService.task.delete.mockResolvedValue(task);
 
       const result = await service.remove(1);
 
-      expect(mockPrismaService.task.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockPrismaService.task.delete).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(result).toEqual(task);
     });
 
-    it('lève une NotFoundException si la tâche à supprimer n\'existe pas', async () => {
+    it("lève une NotFoundException si la tâche à supprimer n'existe pas", async () => {
       mockPrismaService.task.findUnique.mockResolvedValue(null);
 
       await expect(service.remove(999)).rejects.toThrow(NotFoundException);

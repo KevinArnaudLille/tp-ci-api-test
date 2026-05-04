@@ -44,7 +44,10 @@ export class TasksController {
   @ApiResponse({ status: 200, description: 'Tâche mise à jour' })
   @ApiResponse({ status: 404, description: 'Tâche introuvable' })
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateTaskDto: UpdateTaskDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ) {
     return this.tasksService.update(id, updateTaskDto);
   }
 
