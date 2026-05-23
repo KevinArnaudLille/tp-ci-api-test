@@ -256,3 +256,5 @@ Jobs format-lint, tests, build
 ```
 
 Le cache est stocké côté GitHub Actions et persiste entre les runs. Il est automatiquement invalidé dès qu'une dépendance est ajoutée, supprimée ou mise à jour (changement du hash de `package-lock.json`).
+
+Pour une explication détaillée du fonctionnement et des scénarios cache-hit / cache-miss, voir [`docs/fonctionnement-cache.md`](fonctionnement-cache.md).

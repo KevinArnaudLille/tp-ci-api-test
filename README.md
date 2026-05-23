@@ -118,18 +118,24 @@ Le fichier `.actrc` configure l'image runner à utiliser. Si `act` demande quell
 
 ## Structure du pipeline CI
 
-Le workflow `.github/workflows/ci.yml` exécute 4 jobs séquentiels :
+Le workflow `.github/workflows/ci.yml` exécute 5 jobs séquentiels :
 
 ```
-format-lint → tests → build → security
+install → format-lint → tests → build → security
 ```
 
 | Job | Ce qu'il vérifie |
 |---|---|
+| `install` | Installation des dépendances npm et mise en cache de `node_modules` |
 | `format-lint` | Formatage Prettier + analyse ESLint/SonarJS |
 | `tests` | Tests unitaires avec couverture ≥ 80% |
 | `build` | Compilation TypeScript |
 | `security` | Scan de vulnérabilités Trivy |
+
+Documentation détaillée :
+
+- [`docs/ci-pipeline.md`](docs/ci-pipeline.md) — description ligne par ligne du workflow
+- [`docs/fonctionnement-cache.md`](docs/fonctionnement-cache.md) — mécanisme de cache `node_modules` entre les jobs
 
 ---
 
