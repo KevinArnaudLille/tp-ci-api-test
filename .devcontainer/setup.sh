@@ -8,7 +8,17 @@ echo "==> Création de la base de données SQLite et initialisation des données
 DATABASE_URL="./dev.db" npx ts-node db/seed.ts
 
 echo "==> Installation de act (exécution locale des GitHub Actions)..."
-sudo ln -sf /workspaces/tp-ci-api/bin/act /usr/local/bin/act
+# 1. On télécharge le script d'installation officiel
+curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh -o install_act.sh
+
+# 2. On l'exécute explicitement en forçant le dossier système de destination
+sudo bash install_act.sh -b /usr/local/bin/
+
+# 3. On nettoie le script temporaire
+rm install_act.sh
+
+# 4. On s'assure que le binaire est exécutable par tout le monde
+sudo chmod +x /usr/local/bin/act
 
 echo "==> Pré-téléchargement de l'image Docker pour act..."
 docker pull catthehacker/ubuntu:act-24.04
