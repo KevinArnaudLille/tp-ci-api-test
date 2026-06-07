@@ -58,6 +58,7 @@ describe('TasksService', () => {
   describe('findAll', () => {
     it('retourne la liste de toutes les tâches', () => {
       service.create({ title: 'Tâche 1' });
+      service.create({ title: 'Tâche 2' });
 
       const result = service.findAll();
 
