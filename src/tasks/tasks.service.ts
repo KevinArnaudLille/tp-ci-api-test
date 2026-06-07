@@ -46,21 +46,6 @@ export class TasksService {
     return toTask(row);
   }
 
-  // findAll(): Task[] {
-  //   const rows = this.db.db
-  //     .prepare('SELECT * FROM task ORDER BY id DESC')
-  //     .all() as Record<string, unknown>[];
-  //   return rows.map(toTask);
-  // }
-
-  // TODO: ancien code de delete
-  // remove(id: number): Task {
-  //   const existing = this.db.db.prepare('SELECT * FROM task WHERE id = ?').get(id);
-  //   if (existing === undefined) { throw new NotFoundException('Not found'); }
-  //   this.db.db.prepare('DELETE FROM task WHERE id = ?').run(id);
-  //   return toTask(existing as Record<string, unknown>);
-  // }
-
   update(id: number, updateTaskDto: UpdateTaskDto): Task {
     this.findOne(id);
     const sets: string[] = [];
