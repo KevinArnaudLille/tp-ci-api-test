@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { DatabaseService } from "../database.service";
-import { CreateTaskDto } from "./dto/create-task.dto";
-import { UpdateTaskDto } from "./dto/update-task.dto";
-import { Task } from "./entities/task.entity";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DatabaseService } from '../database.service';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task } from './entities/task.entity';
 
 function toTask(row: Record<string, unknown>): Task {
   return {
